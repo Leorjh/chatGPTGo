@@ -1,42 +1,52 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "bytes"
-    "io"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
 )
 
+type Request struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+}
+
 func main() {
-    apiKey := "YOUR-KEY"
+	apiKey := "API-KEY"
+	apiUrl := "https://api.openai.com/v1/chat/completions"
 
-    apiUrl := "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions"
+	input := Request{
+		Model:  "gpt-3.5-turbo",
+		Prompt: "Torre Eiffel",
+	}
 
-    input := `{
-        "prompt": "\"História torre eifel",
-        "max_tokens": 50
-    }`
+	byteResult, err := json.Marshal(input)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    req, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer([]byte(input)))
-    if err != nil {
-        panic(err)
-    }
+	req, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer(byteResult))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-    req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
 
-    responseBody, err := io.ReadAll(resp.Body)
-    if err != nil {
-        panic(err)
-    }
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Exibe a resposta JSON
-    fmt.Println(string(responseBody))
+	fmt.Println(string(responseBody))
 }
