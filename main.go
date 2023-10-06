@@ -3,8 +3,8 @@ package main
 import "log"
 
 func main() {
-	chatGPT := newChatGPT()
-	message, err := chatGPT.GetHistory("Torre Eiffel")
+	ia := newChatGPT()
+	message, err := ia.GetHistory("Torre Eiffel")
 	if err != nil {
 		log.Fatal(err)
 	}
